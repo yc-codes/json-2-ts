@@ -2,7 +2,6 @@ import JsonToTS from "json-to-ts"
 import React, { useEffect, useState } from "react"
 import Button from "../components/button/Button"
 import useDebounce from "../hooks/useDebounce"
-import { } from 'highlight.js';
 
 const exampleJson = {
   "data": {
