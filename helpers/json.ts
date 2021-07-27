@@ -1,3 +1,6 @@
+
+// found it on stackoverflow
+// 
 export function isJson(item: any) {
   item = typeof item !== "string"
     ? JSON.stringify(item)

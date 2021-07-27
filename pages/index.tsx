@@ -2,6 +2,9 @@ import JsonToTS from "json-to-ts"
 import React, { useEffect, useState } from "react"
 import Button from "../components/button/Button"
 import useDebounce from "../hooks/useDebounce"
+import Head from 'next/head'
+import { isJson } from "../helpers/json"
+import { useLocalStorage } from "../hooks/useLocalStorage"
 
 const exampleJson = {
   "data": {
@@ -19,6 +22,7 @@ export default function Home() {
   const [json, setJson] = useState<string>('')
   const [invalidJson, setInvalidJson] = useState(false)
   const [interfaces, setIntefaces] = useState<string[]>([])
+  const [localJson, setLocalJson] = useLocalStorage('last-json', '')
 
   const debounceJson = useDebounce(json, 500)
 
@@ -26,12 +30,33 @@ export default function Home() {
 
   useEffect(() => {
     generateInterfaces()
+    if (isJson(debounceJson)) {
+      setLocalJson
+    }
   }, [debounceJson])
 
   useEffect(() => {
-    document.addEventListener('keypress', function (ev) {
-      console.log(ev.key);
-    })
+
+    let clipboard = '';
+    navigator.clipboard.readText().then(
+      clipBoardData => {
+        clipboard = clipBoardData
+      }
+    ).catch(e => alert(e));
+
+    if (isJson(clipboard)) {
+      console.log('into clipboard');
+
+      setJson(clipboard)
+      return
+    }
+
+    if (localJson) {
+      console.log('into localJson');
+      setJson(localJson)
+      return
+    }
+
   }, [])
 
   function generateInterfaces() {
@@ -64,6 +89,14 @@ export default function Home() {
 
   return (
     <div className="bg-black">
+      <Head>
+        <title>JSON 2 TS</title>
+        <link rel="icon" type="image/png" href="/favicon.png"></link>
+        <meta property="og:url" content="https://json2ts.vercel.app/" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="Generate Typescript Interfaces from JSON" />
+        <meta property="og:image" content="https://json2ts.vercel.app/twitter-large-card.jpg" />
+      </Head>
       <div className="grid grid-cols-1 lg:grid-cols-2">
         <section className="p-6">
           <textarea
@@ -104,7 +137,7 @@ export default function Home() {
           </div>
         </section>
         <section>
-          <div className="whitespace-pre p-6 h-screen overflow-y-auto text-gray-200 font-mono">
+          <div className="whitespace-pre p-6 lg:h-screen overflow-y-auto text-gray-200 font-mono">
             {
               loading &&
               <code>{`Loading... \n\n`}</code>
