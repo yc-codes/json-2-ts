@@ -1,6 +1,8 @@
 import JsonToTS from "json-to-ts"
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
+import Button from "../components/button/Button"
 import useDebounce from "../hooks/useDebounce"
+import { } from 'highlight.js';
 
 const exampleJson = {
   "data": {
@@ -27,8 +29,16 @@ export default function Home() {
     generateInterfaces()
   }, [debounceJson])
 
+  useEffect(() => {
+    document.addEventListener('keypress', function (ev) {
+      console.log(ev.key);
+    })
+  }, [])
+
   function generateInterfaces() {
-    if (!json) {
+    if (!json.length) {
+      setIntefaces(['Invalid JSON']);
+      setInvalidJson(true)
       return
     }
     try {
@@ -43,50 +53,43 @@ export default function Home() {
       setIntefaces(['Invalid JSON']);
       setInvalidJson(true)
     }
-
   }
 
+  function getClipboardAndPaste() {
+    navigator.clipboard.readText().then(
+      clipBoardData => {
+        setJson(clipBoardData)
+      }
+    ).catch(e => alert(e));
+  }
 
   return (
-    <div className="">
-      <div className="grid grid-cols-2">
-        <section className="sticky top-0 pt-6 pl-6">
+    <div className="bg-black">
+      <div className="grid grid-cols-1 lg:grid-cols-2">
+        <section className="p-6">
           <textarea
             name="json"
             id="json"
             placeholder={'JSON'}
-            className="bg-gray-50 border rounded-md w-full h-96 hide-scrollbar pl-4 py-4 outline-none focus:border-gray-300 focus:bg-white"
+            className="bg-black text-white border border-gray-700 rounded w-full h-96 hide-scrollbar pl-4 py-4 outline-none focus:border-gray-600"
             onChange={(ev) => {
               setJson(ev.target.value)
             }}
             value={json}
           >{json}</textarea>
           <div className="grid gap-2 mt-4">
-            <button
-              className="bg-gray-200 rounded-md py-2"
-              onClick={() => {
-              }}
+            <Button
+              onClick={() => generateInterfaces()}
             >
               Generate
-            </button>
-            <button
-              className="bg-gray-200 rounded-md py-2"
-              onClick={() => {
-                navigator.clipboard.readText().then(
-                  clipBoardData => {
-                    setJson(clipBoardData)
-                  }
-                ).catch(e => alert(e));
-              }}
+            </Button>
+            <Button
+              onClick={() => getClipboardAndPaste()}
             >
               Paste from Clipboard
-            </button>
-            <button
-              className="bg-gray-200 rounded-md py-2"
+            </Button>
+            <Button
               onClick={() => {
-                if (invalidJson) {
-                  alert('invalid JSON');
-                }
                 const data = document.getElementById('code-interfaces')?.innerText
                 if (data) {
                   navigator.clipboard.writeText(data ?? '').then(function () {
@@ -98,22 +101,20 @@ export default function Home() {
               }}
             >
               Copy Interfaces
-            </button>
+            </Button>
           </div>
         </section>
         <section>
-          <div className="whitespace-pre p-6 h-screen overflow-y-auto">
+          <div className="whitespace-pre p-6 h-screen overflow-y-auto text-gray-200 font-mono">
             {
               loading &&
               <code>{`Loading... \n\n`}</code>
             }
-            <code id="code-interfaces">
-              {
-                (!loading) && interfaces.map(obj => {
-                  return `${obj}\n\n`
-                })
-              }
-            </code>
+            {
+              !(loading) && interfaces.map(obj => {
+                return `${obj}\n\n`
+              })
+            }
           </div>
         </section>
       </div>
