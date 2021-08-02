@@ -4,7 +4,7 @@ import Button from "../components/button/Button"
 import useDebounce from "../hooks/useDebounce"
 import Head from 'next/head'
 import { isJson } from "../helpers/json"
-import { useLocalStorage } from "../hooks/useLocalStorage"
+import useLocalStorage from "../hooks/useLocalStorage"
 
 const exampleJson = {
   "data": {
@@ -20,9 +20,8 @@ const exampleJson = {
 export default function Home() {
 
   const [json, setJson] = useState<string>('')
-  const [invalidJson, setInvalidJson] = useState(false)
   const [interfaces, setIntefaces] = useState<string[]>([])
-  const [localJson, setLocalJson] = useLocalStorage('last-json', '')
+  const { storedValue: localJson, setStorageValue: setLocalJson } = useLocalStorage('last-json', '')
 
   const debounceJson = useDebounce(json, 500)
 
@@ -43,7 +42,6 @@ export default function Home() {
         clipboard = clipBoardData
       }
     ).catch(e => alert(e));
-
     if (isJson(clipboard)) {
       console.log('into clipboard');
 
@@ -61,8 +59,7 @@ export default function Home() {
 
   function generateInterfaces() {
     if (!json.length) {
-      setIntefaces(['Invalid JSON']);
-      setInvalidJson(true)
+      setIntefaces(['Paste JSON']);
       return
     }
     try {
@@ -72,10 +69,9 @@ export default function Home() {
         object.push(typeInterface)
       })
       setIntefaces(object)
-      setInvalidJson(false)
+      setLocalJson(json)
     } catch (e) {
-      setIntefaces(['Invalid JSON']);
-      setInvalidJson(true)
+      setIntefaces(['Enter Valid JSON']);
     }
   }
 
@@ -107,6 +103,7 @@ export default function Home() {
             onChange={(ev) => {
               setJson(ev.target.value)
             }}
+            autoCorrect="off"
             value={json}
           >{json}</textarea>
           <div className="grid gap-2 mt-4">
@@ -121,10 +118,10 @@ export default function Home() {
               Paste from Clipboard
             </Button>
             <Button
-              onClick={() => {
+              onClick={async () => {
                 const data = document.getElementById('code-interfaces')?.innerText
                 if (data) {
-                  navigator.clipboard.writeText(data ?? '').then(function () {
+                  await navigator.clipboard.writeText(data ?? '').then(function () {
                     console.log('Copied Success');
                   }, function (err) {
                     alert(err)
@@ -137,16 +134,13 @@ export default function Home() {
           </div>
         </section>
         <section>
-          <div className="whitespace-pre p-6 lg:h-screen overflow-y-auto text-gray-200 font-mono">
+          <div className="whitespace-pre p-6 lg:h-screen overflow-y-auto text-gray-200">
             {
               loading &&
+              // @ts-ignore
               <code>{`Loading... \n\n`}</code>
             }
-            {
-              !(loading) && interfaces.map(obj => {
-                return `${obj}\n\n`
-              })
-            }
+            {!(loading) && interfaces.join('\n\n')}
           </div>
         </section>
       </div>
