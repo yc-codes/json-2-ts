@@ -10,7 +10,7 @@ const Button: FC<ButtonProps> = ({
 }) => {
   return (
     <button
-      className="bg-gray-900 text-white rounded-md py-2"
+      className="bg-gray-800 outline-none active:bg-gray-900 hover:bg-gray-700 focus:ring-2 focus:ring-blue-600 text-white rounded-md py-2 px-4 transition-all"
       {...props}
     >
       {children}

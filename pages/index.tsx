@@ -5,43 +5,50 @@ import useDebounce from "../hooks/useDebounce"
 import Head from 'next/head'
 import { isJson } from "../helpers/json"
 import useLocalStorage from "../hooks/useLocalStorage"
-
-const exampleJson = {
-  "data": {
-    "id": 1001,
-    "image": null,
-    "title": "Blazer Jacket",
-    "description": "New Test Product 1001 Description en",
-  },
-  "message": "Product Detail Returned Successfully",
-  "status": "1"
-}
+import { ClipboardIcon, ClipboardCopyIcon, ClipboardListIcon, ClipboardCheckIcon } from '@heroicons/react/outline'
 
 export default function Home() {
 
   const [json, setJson] = useState<string>('')
   const [interfaces, setIntefaces] = useState<string[]>([])
+  const [copied, setCopied] = useState(false)
+  const [rootObjectName, setRootObjectName] = useState('')
   const { storedValue: localJson, setStorageValue: setLocalJson } = useLocalStorage('last-json', '')
+  const { storedValue: localRootObject, setStorageValue: setLocalRootObject } = useLocalStorage('root-oject-name', '')
 
   const debounceJson = useDebounce(json, 500)
 
   const loading = json !== debounceJson
 
   useEffect(() => {
+    if (!copied) {
+      return
+    }
+    if (copied) {
+      setTimeout(() => {
+        setCopied(false)
+      }, 2000);
+    }
+    return () => { }
+  }, [copied])
+
+  useEffect(() => {
     generateInterfaces()
     if (isJson(debounceJson)) {
-      setLocalJson
+      setLocalJson(debounceJson)
     }
-  }, [debounceJson])
+  }, [debounceJson, rootObjectName])
 
   useEffect(() => {
 
     let clipboard = '';
-    navigator.clipboard.readText().then(
-      clipBoardData => {
-        clipboard = clipBoardData
-      }
-    ).catch(e => alert(e));
+    if (navigator.clipboard && document.hasFocus()) {
+      navigator.clipboard.readText().then(
+        clipBoardData => {
+          clipboard = clipBoardData
+        }
+      ).catch(e => alert(e));
+    }
     if (isJson(clipboard)) {
       console.log('into clipboard');
 
@@ -65,7 +72,9 @@ export default function Home() {
     try {
       const data = JSON.parse(json)
       let object: string[] = [];
-      JsonToTS(data).forEach(typeInterface => {
+      JsonToTS(data, {
+        rootName: rootObjectName.length ? rootObjectName : 'RootObject'
+      }).forEach(typeInterface => {
         object.push(typeInterface)
       })
       setIntefaces(object)
@@ -76,6 +85,9 @@ export default function Home() {
   }
 
   function getClipboardAndPaste() {
+    if (!navigator.clipboard && !document.hasFocus()) {
+      return
+    }
     navigator.clipboard.readText().then(
       clipBoardData => {
         setJson(clipBoardData)
@@ -94,34 +106,47 @@ export default function Home() {
         <meta property="og:image" content="https://json2ts.vercel.app/twitter-large-card.jpg" />
       </Head>
       <div className="grid grid-cols-1 lg:grid-cols-2">
-        <section className="p-6">
+        <section className="p-6 grid grid-cols-1 gap-4 place-content-start">
           <textarea
             name="json"
             id="json"
             placeholder={'JSON'}
-            className="bg-black text-white border border-gray-700 rounded w-full h-96 hide-scrollbar pl-4 py-4 outline-none focus:border-gray-600"
+            className="bg-black text-white border border-gray-700 rounded w-full h-96 hide-scrollbar pl-4 py-4 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             onChange={(ev) => {
               setJson(ev.target.value)
             }}
             autoCorrect="off"
             value={json}
           >{json}</textarea>
-          <div className="grid gap-2 mt-4">
-            <Button
-              onClick={() => generateInterfaces()}
-            >
-              Generate
-            </Button>
+          <input
+            className="bg-black text-white border focus:border-blue-500 focus:ring-1 focus:ring-blue-500 border-gray-700 rounded w-full hide-scrollbar pl-4 py-2 outline-none"
+            type="text"
+            name="root"
+            id="rootObject"
+            value={rootObjectName}
+            onChange={(e) => {
+              setRootObjectName(e.target.value)
+            }}
+            placeholder="Root Interface Name"
+          />
+          <div className="flex space-y-4 flex-col items-start">
             <Button
               onClick={() => getClipboardAndPaste()}
             >
-              Paste from Clipboard
+              <div className="flex space-x-2 items-center">
+                <p>Paste from Clipboard</p>
+                <ClipboardCopyIcon className="h-5" />
+              </div>
             </Button>
             <Button
               onClick={async () => {
                 const data = document.getElementById('code-interfaces')?.innerText
                 if (data) {
+                  if (!navigator.clipboard && !document.hasFocus()) {
+                    return
+                  }
                   await navigator.clipboard.writeText(data ?? '').then(function () {
+                    setCopied(true)
                     console.log('Copied Success');
                   }, function (err) {
                     alert(err)
@@ -129,18 +154,26 @@ export default function Home() {
                 }
               }}
             >
-              Copy Interfaces
+              <div className="flex space-x-2 items-center">
+                <p>Copy Interfaces</p>
+                {
+                  copied
+                    ? <ClipboardCheckIcon className="h-5" />
+                    : <ClipboardListIcon className="h-5" />
+                }
+              </div>
             </Button>
           </div>
         </section>
         <section>
           <div className="whitespace-pre p-6 lg:h-screen overflow-y-auto text-gray-200">
-            {
-              loading &&
-              // @ts-ignore
-              <code>{`Loading... \n\n`}</code>
-            }
-            {!(loading) && interfaces.join('\n\n')}
+            <code id="code-interfaces">
+              {
+                loading
+                  ? `Loading... \n\n`
+                  : interfaces.join('\n\n')
+              }
+            </code>
           </div>
         </section>
       </div>
