@@ -1,11 +1,11 @@
+import { BanIcon, ClipboardCheckIcon, ClipboardCopyIcon, ClipboardListIcon, CodeIcon } from '@heroicons/react/outline'
 import JsonToTS from "json-to-ts"
+import Head from 'next/head'
 import React, { useEffect, useState } from "react"
 import Button from "../components/button/Button"
-import useDebounce from "../hooks/useDebounce"
-import Head from 'next/head'
 import { isJson } from "../helpers/json"
+import useDebounce from "../hooks/useDebounce"
 import useLocalStorage from "../hooks/useLocalStorage"
-import { ClipboardIcon, ClipboardCopyIcon, ClipboardListIcon, ClipboardCheckIcon } from '@heroicons/react/outline'
 
 export default function Home() {
 
@@ -161,6 +161,22 @@ export default function Home() {
                     ? <ClipboardCheckIcon className="h-5" />
                     : <ClipboardListIcon className="h-5" />
                 }
+              </div>
+            </Button>
+          </div>
+          <div className="py-2" />
+          <p className="text-gray-400">Handcrafted by <a className="hover:text-blue-500 underline" href="https://twitter.com/yc_codes">Yash Chauhan</a></p>
+          <p className="text-gray-400 text-sm">Proudly hosted on <a className="hover:underline hover:text-blue-500" href="https://vercel.com">▲Vercel</a></p>
+          <div className="">
+            <Button
+              onClick={() => {
+                const githubLink = 'https://github.com/yc-codes/json-2-ts'
+                window.open(githubLink)
+              }}
+            >
+              <div className="flex space-x-2 items-center">
+                <p>GitHub</p>
+                <CodeIcon className="h-5" />
               </div>
             </Button>
           </div>
