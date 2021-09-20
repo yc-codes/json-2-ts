@@ -165,7 +165,7 @@ export default function Home() {
             </Button>
           </div>
           <div className="py-2" />
-          <p className="text-gray-400">Handcrafted by <a className="hover:text-blue-500 underline" href="https://twitter.com/yc_codes">Yash Chauhan</a></p>
+          <p className="text-gray-400">Handcrafted with <span className="text-red-500">&#9829;</span> by <a target="_blank" rel="noreferrer" className="hover:text-blue-500 underline" href="https://twitter.com/yc_codes">Yash Chauhan</a></p>
           <p className="text-gray-400 text-sm">Proudly hosted on <a className="hover:underline hover:text-blue-500" href="https://vercel.com">▲Vercel</a></p>
           <div className="">
             <Button
@@ -187,7 +187,7 @@ export default function Home() {
               {
                 loading
                   ? `Loading... \n\n`
-                  : interfaces.join('\n\n')
+                  : interfaces.map(int => 'export ' + int).join('\n\n')
               }
             </code>
           </div>
