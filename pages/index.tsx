@@ -1,4 +1,4 @@
-import { BanIcon, ClipboardCheckIcon, ClipboardCopyIcon, ClipboardListIcon, CodeIcon } from '@heroicons/react/outline'
+import { ClipboardCheckIcon, ClipboardCopyIcon, ClipboardListIcon, CodeIcon } from '@heroicons/react/outline'
 import JsonToTS from "json-to-ts"
 import Head from 'next/head'
 import React, { useEffect, useState } from "react"
@@ -6,6 +6,8 @@ import Button from "../components/button/Button"
 import { isJson } from "../helpers/json"
 import useDebounce from "../hooks/useDebounce"
 import useLocalStorage from "../hooks/useLocalStorage"
+import Highlight, { defaultProps } from "prism-react-renderer";
+import theme from "../theme/github-dark";
 
 export default function Home() {
 
@@ -183,12 +185,32 @@ export default function Home() {
         </section>
         <section>
           <div className="whitespace-pre p-6 lg:h-screen overflow-y-auto text-gray-200">
-            <code id="code-interfaces">
-              {
+
+            <Highlight
+              {...defaultProps}
+              theme={theme}
+              code={
                 loading
-                  ? `Loading... \n\n`
-                  : interfaces.map(int => 'export ' + int).join('\n\n')
+                  ? `// Loading... \n\n`
+                  : interfaces.map(int => 'export ' + int).join('\n\n').trim()
               }
+              language="typescript"
+            >
+              {({ className, style, tokens, getLineProps, getTokenProps }) => (
+                <pre className={className} >
+                  {tokens.map((line, i) => (
+                    <div {...getLineProps({ line, key: i })} key={i}>
+                      <div className="text-gray-700 select-none w-8 pr-3 inline-block text-right">{i + 1}</div>
+                      {line.map((token, key) => <span {...getTokenProps({ token, key })} key={key} />)}
+                    </div>
+                  ))}
+                </pre>
+              )}
+            </Highlight>
+            <code id="code-interfaces" className="hidden">
+              {loading
+                ? `Loading... \n\n`
+                : interfaces.map(int => 'export ' + int).join('\n\n').trim()}
             </code>
           </div>
         </section>
