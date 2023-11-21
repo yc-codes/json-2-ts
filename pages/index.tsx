@@ -2,11 +2,16 @@ import Button from "@components/button/Button";
 import ClipboardHelper from "@helpers/clipboard";
 import { ClipboardDocumentCheckIcon, ClipboardDocumentIcon, ClipboardDocumentListIcon, CodeBracketIcon } from "@heroicons/react/24/outline";
 import useDebounce from "@hooks/useDebounce";
-import theme from "@theme/github-dark";
-import JsonToTS from "json-to-ts";
+import dynamic from "next/dynamic";
 import Head from "next/head";
-import { Highlight } from "prism-react-renderer";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+
+const staticCode = <pre key="staticCode">{`/*\nPaste JSON\n*/`}</pre>;
+
+const LazyCodeHighLighter = dynamic(() => import("@components/highlight/HighLighter"), {
+  loading: () => staticCode,
+  ssr: false,
+});
 
 export default function Home() {
   const [json, setJson] = useState<string>("");
@@ -18,16 +23,13 @@ export default function Home() {
 
   const loading = json !== debounceJson;
 
-  useEffect(() => {
-    generateInterfaces();
-  }, [debounceJson, rootObjectName]);
-
-  function generateInterfaces() {
+  const generateInterfaces = useCallback(async () => {
     if (!json.length) {
       setIntefaces("Paste JSON");
       return;
     }
     try {
+      const JsonToTS = (await import("json-to-ts")).default;
       const interfaces = JsonToTS(JSON.parse(json), {
         rootName: rootObjectName.length ? rootObjectName : "RootInterface",
       });
@@ -35,7 +37,11 @@ export default function Home() {
     } catch (e) {
       setIntefaces("Not a valid JSON");
     }
-  }
+  }, [json, rootObjectName]);
+
+  useEffect(() => {
+    generateInterfaces();
+  }, [debounceJson, rootObjectName, generateInterfaces]);
 
   const tsInterface = useMemo(() => {
     if (loading) return "/*\nGenerating...\n*/";
@@ -127,20 +133,7 @@ export default function Home() {
         </section>
         <section>
           <div className="whitespace-pre p-6 lg:h-screen overflow-y-auto text-gray-200">
-            <Highlight theme={theme} code={tsInterface} language="typescript">
-              {({ className, style, tokens, getLineProps, getTokenProps }) => (
-                <pre className={className}>
-                  {tokens.map((line, i) => (
-                    <div {...getLineProps({ line, key: i })} key={i}>
-                      <div className="text-gray-700 select-none w-8 pr-3 inline-block text-right">{i + 1}</div>
-                      {line.map((token, key) => (
-                        <span {...getTokenProps({ token, key })} key={key} />
-                      ))}
-                    </div>
-                  ))}
-                </pre>
-              )}
-            </Highlight>
+            <LazyCodeHighLighter code={tsInterface} />
           </div>
         </section>
       </div>
