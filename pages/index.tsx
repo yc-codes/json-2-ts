@@ -1,9 +1,9 @@
 import Button from "@components/button/Button";
+import SEOMetaData from "@components/seo/MetaData";
 import ClipboardHelper from "@helpers/clipboard";
 import { ClipboardDocumentCheckIcon, ClipboardDocumentIcon, ClipboardDocumentListIcon, CodeBracketIcon } from "@heroicons/react/24/outline";
 import useDebounce from "@hooks/useDebounce";
 import dynamic from "next/dynamic";
-import Head from "next/head";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 const staticCode = <pre key="staticCode">{`/*\nPaste JSON\n*/`}</pre>;
@@ -66,16 +66,7 @@ export default function Home() {
 
   return (
     <div className="bg-black">
-      <Head>
-        <title>JSON to Typescript Interface Generator</title>
-        <link rel="icon" type="image/png" href="/favicon.png"></link>
-        <meta name="description" content="Generate TypeScript Interfaces from JSON, Paste JSON and Get Interface, Open-Source, Easy to use." />
-        <meta property="og:url" content="https://json2ts.vercel.app/" />
-        <meta property="og:type" content="website" />
-        <meta name="keywords" content="json to typescript, open source" />
-        <meta property="og:description" content="Generate Typescript Interfaces from JSON" />
-        <meta property="og:image" content="https://json2ts.vercel.app/twitter-large-card.jpg" />
-      </Head>
+      <SEOMetaData />
       <div className="grid grid-cols-1 lg:grid-cols-2">
         <section className="p-6 grid grid-cols-1 gap-4 place-content-start">
           <textarea
