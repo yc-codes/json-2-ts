@@ -17,6 +17,7 @@ export default function Home() {
   const [json, setJson] = useState<string>("");
   const [interfaces, setIntefaces] = useState<string[] | string>([]);
   const [copied, setCopied] = useState(false);
+  const [addExport, setAddExport] = useState(true);
   const [rootObjectName, setRootObjectName] = useState("");
 
   const debounceJson = useDebounce(json, 200);
@@ -48,10 +49,10 @@ export default function Home() {
 
     if (typeof interfaces === "string") return `/*\n${interfaces}\n*/`;
     return interfaces
-      .map((int) => "export " + int)
+      .map((int) => (addExport ? "export " : "") + int)
       .join("\n\n")
       .trim();
-  }, [interfaces, loading]);
+  }, [interfaces, loading, addExport]);
 
   function getClipboardAndPaste() {
     ClipboardHelper.read().then((data) => setJson(data));
@@ -100,6 +101,19 @@ export default function Home() {
                 {copied ? <ClipboardDocumentCheckIcon className="h-5" /> : <ClipboardDocumentListIcon className="h-5" />}
               </div>
             </Button>
+          </div>
+          <div className="flex">
+            <label className="space-x-2 flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={addExport}
+                className="cursor-pointer scale-110"
+                onChange={(e) => {
+                  setAddExport(e.currentTarget.checked);
+                }}
+              />
+              <p>Export interfaces</p>
+            </label>
           </div>
           <div className="py-2" />
           <p className="text-gray-400">

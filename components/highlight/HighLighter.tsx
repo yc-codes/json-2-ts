@@ -13,12 +13,12 @@ const HighLighter: FC<HighLighterProps> = ({ code }) => {
       {({ className, style, tokens, getLineProps, getTokenProps }) => (
         <pre className={className}>
           {tokens.map((line, i) => (
-            <div {...getLineProps({ line, key: i })} key={i}>
+            <div key={i} {...getLineProps({ line, key: i })} >
               <div key={i} className="text-gray-700 select-none w-8 pr-3 inline-block text-right">
                 {i + 1}
               </div>
               {line.map((token, key) => (
-                <span {...getTokenProps({ token, key })} key={key} />
+                <span key={key} {...getTokenProps({ token, key })}  />
               ))}
             </div>
           ))}
