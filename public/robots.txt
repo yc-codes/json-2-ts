@@ -2,3 +2,16 @@ User-agent: *
 Allow: /
 
 Sitemap: https://json2ts.vercel.app/sitemap.xml
+
+# AI/LLM crawlers
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Googlebot-Extended
+Allow: /

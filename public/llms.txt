@@ -1,0 +1,40 @@
+# JSON to TypeScript Interface Generator
+
+> A free, open-source tool that converts JSON objects into TypeScript interfaces instantly in the browser. No signup required.
+
+## What it does
+
+Paste any valid JSON into the input and receive TypeScript interfaces as output. Supports nested objects, arrays, and optional export keyword. The root interface name is configurable.
+
+## Usage
+
+- URL: https://json2ts.vercel.app/
+- Input: Valid JSON (paste or type)
+- Output: TypeScript interface declarations
+- Options: Toggle `export` keyword, set custom root interface name
+
+## Example
+
+Input JSON:
+```json
+{"name": "Alice", "age": 30, "address": {"city": "NYC"}}
+```
+
+Output TypeScript:
+```typescript
+export interface Address {
+  city: string;
+}
+
+export interface RootInterface {
+  name: string;
+  age: number;
+  address: Address;
+}
+```
+
+## Source
+
+- GitHub: https://github.com/yc-codes/json-2-ts
+- Author: Yash Chauhan (https://twitter.com/yc_codes)
+- License: Open Source
